@@ -16,11 +16,16 @@ There is no test suite configured.
 
 ## Architecture
 
-This is a single-component React app (Vite + React 19). All state and logic lives in `src/App.jsx`:
+React app built with Vite + React 19. Components live in `src/`:
 
-- **State**: `transactions` array (the data store), form fields (`description`, `amount`, `type`, `category`), and filter state (`filterType`, `filterCategory`).
-- **Known bug**: `amount` is stored as a string in state. The `reduce` calls for `totalIncome` and `totalExpenses` concatenate strings instead of summing numbers, producing incorrect summary values.
-- **No persistence**: transactions are in-memory only; reloading the page resets to the hardcoded initial data.
-- **Categories**: `["food", "housing", "utilities", "transport", "entertainment", "salary", "other"]` — defined inline in the component.
+- **`App.jsx`** — root component. Owns `transactions` array (the data store). Passes `onAdd` callback to `TransactionForm` and `transactions` to `Summary` and `TransactionList`.
+- **`TransactionForm.jsx`** — owns form state (`description`, `amount`, `type`, `category`). Calls `onAdd(transaction)` on submit, then resets fields.
+- **`TransactionList.jsx`** — owns filter state (`filterType`, `filterCategory`). Renders the filtered transactions table.
+- **`Summary.jsx`** — displays income/expense totals derived from `transactions`.
+
+**Shared constant**: `CATEGORIES` (`["food", "housing", "utilities", "transport", "entertainment", "salary", "other"]`) is duplicated in `TransactionForm` and `TransactionList` — not yet extracted to a shared module.
+
+- **Known bug**: The `reduce` calls in `Summary` for `totalIncome` and `totalExpenses` may concatenate strings instead of summing numbers if `amount` is not coerced — verify inputs are parsed with `parseFloat`.
+- **No persistence**: transactions are in-memory only; reloading the page resets to the hardcoded initial data in `App.jsx`.
 
 Styling is split between `src/index.css` (global/reset) and `src/App.css` (component styles). CSS classes `income-amount` and `expense-amount` are shared between the summary cards and the transaction table rows.
